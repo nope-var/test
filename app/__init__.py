@@ -1,6 +1,6 @@
 from flask import Flask
 
-app = Flask(__name__)
+app = Flask(__name__)  # Создаем объект Flask
 
-# Импортируем маршруты
+# Импортируем маршруты после инициализации приложения
 from app import routes

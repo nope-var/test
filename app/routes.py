@@ -1,4 +1,5 @@
 from flask import render_template, request
+from app import app  # Импортируем объект Flask из __init__.py
 from keras.models import load_model
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
