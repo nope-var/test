@@ -1,6 +1,6 @@
 # app/__init__.py
 from flask import Flask
-from keras.models import load_model
+from keras.src.models import load_model
 
 app = Flask(__name__)
 
