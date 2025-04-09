@@ -7,13 +7,12 @@ from sklearn.preprocessing import LabelEncoder
 # Загрузка модели
 model = load_model('model.h5')
 
-# Инициализация лейблов (нужно будет заменить DummyEncoders на настоящие)
-class DummyEncoders:
-    def transform(self, values):
-        return [0]  # Заглушка для кодировки
+from sklearn.preprocessing import LabelEncoder
 
-# Создание заглушек для теста
-le_animal, le_disease, le_symptom = DummyEncoders(), DummyEncoders(), DummyEncoders()
+# Используем такие же энкодеры, как в десктопном приложении
+le_animal = LabelEncoder()
+le_disease = LabelEncoder()
+le_symptom = LabelEncoder()
 
 # Маршрут главной страницы
 @app.route('/')
@@ -29,7 +28,7 @@ def predict():
         temp = float(request.form['temp'])
         symptoms = [request.form[f'symptom{i}'] for i in range(1, 4)]
 
-        # Преобразуем данные
+        # Преобразуем данные с использованием энкодеров
         input_data = {
             'Animal': le_animal.transform([animal])[0],
             'Age': age,

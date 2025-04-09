@@ -6,32 +6,34 @@
     <title>Animal Disease Prediction</title>
 </head>
 <body>
-    <h1>Animal Disease Prediction</h1>
-    <form method="POST" action="/predict">
+    <h1>Predict Animal Disease</h1>
+    <form action="/predict" method="post">
         <label for="animal">Animal:</label>
-        <input type="text" id="animal" name="animal" required><br><br>
+        <select name="animal" id="animal">
+            <option value="Dog">Dog</option>
+            <option value="Cat">Cat</option>
+            <option value="Horse">Horse</option>
+            <!-- Добавьте другие животные -->
+        </select><br><br>
 
         <label for="age">Age:</label>
-        <input type="number" id="age" name="age" required><br><br>
+        <input type="number" step="0.1" name="age" id="age" required><br><br>
 
         <label for="temp">Temperature:</label>
-        <input type="number" id="temp" name="temp" required><br><br>
+        <input type="number" step="0.1" name="temp" id="temp" required><br><br>
 
         <label for="symptom1">Symptom 1:</label>
-        <input type="text" id="symptom1" name="symptom1" required><br><br>
+        <input type="text" name="symptom1" id="symptom1"><br><br>
 
         <label for="symptom2">Symptom 2:</label>
-        <input type="text" id="symptom2" name="symptom2"><br><br>
+        <input type="text" name="symptom2" id="symptom2"><br><br>
 
         <label for="symptom3">Symptom 3:</label>
-        <input type="text" id="symptom3" name="symptom3"><br><br>
+        <input type="text" name="symptom3" id="symptom3"><br><br>
 
-        <button type="submit">Submit</button>
+        <input type="submit" value="Predict">
     </form>
 
-    <h2>Result:</h2>
-    {% if result %}
-        <p>{{ result }}</p>
-    {% endif %}
+    <h2>Result: {{ result }}</h2>
 </body>
 </html>
