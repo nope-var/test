@@ -1,51 +1,65 @@
-from flask import render_template, request
-from app import app  # Импортируем объект Flask из __init__.py
-from keras.src.models import load_model
+import pickle
 import pandas as pd
-from sklearn.preprocessing import LabelEncoder
+from flask import Blueprint, render_template, request, current_app
+from keras.models import load_model
+import numpy as np
 
-# Загрузка модели
-model = load_model('model.h5')
+bp = Blueprint('main', __name__)
 
-from sklearn.preprocessing import LabelEncoder
+# Загрузка модели и энкодеров при запуске приложения
+@bp.before_app_request
+def load_resources():
+    current_app.model = load_model("model.h5")
+    with open('le_animal.pkl', 'rb') as f:
+        current_app.le_animal = pickle.load(f)
+    with open('le_disease.pkl', 'rb') as f:
+        current_app.le_disease = pickle.load(f)
+    with open('le_symptom.pkl', 'rb') as f:
+        current_app.le_symptom = pickle.load(f)
 
-# Используем такие же энкодеры, как в десктопном приложении
-le_animal = LabelEncoder()
-le_disease = LabelEncoder()
-le_symptom = LabelEncoder()
-
-# Маршрут главной страницы
-@app.route('/')
+# Главная страница
+@bp.route('/', methods=['GET', 'POST'])
 def index():
-    return render_template('index.html')
-
-# Маршрут для предсказания
-@app.route('/predict', methods=['POST'])
-def predict():
-    try:
+    if request.method == 'POST':
+        # Получаем данные из формы
         animal = request.form['animal']
         age = float(request.form['age'])
-        temp = float(request.form['temp'])
-        symptoms = [request.form[f'symptom{i}'] for i in range(1, 4)]
+        temp = float(request.form['temperature'])
+        symptom1 = request.form['symptom1']
+        symptom2 = request.form['symptom2']
+        symptom3 = request.form['symptom3']
 
-        # Преобразуем данные с использованием энкодеров
-        input_data = {
-            'Animal': le_animal.transform([animal])[0],
-            'Age': age,
-            'Temperature': temp,
-            'Symptom 1': le_symptom.transform([symptoms[0]])[0] if symptoms[0] else 0,
-            'Symptom 2': le_symptom.transform([symptoms[1]])[0] if symptoms[1] else 0,
-            'Symptom 3': le_symptom.transform([symptoms[2]])[0] if symptoms[2] else 0
-        }
+        try:
+            # Преобразование введенных данных
+            input_data = {
+                'Animal': current_app.le_animal.transform([animal])[0],
+                'Age': age,
+                'Temperature': temp,
+                'Symptom 1': safe_transform(current_app.le_symptom, symptom1),
+                'Symptom 2': safe_transform(current_app.le_symptom, symptom2),
+                'Symptom 3': safe_transform(current_app.le_symptom, symptom3)
+            }
 
-        input_df = pd.DataFrame([input_data])
+            input_df = pd.DataFrame([input_data])
+            
+            # Предсказание модели
+            prediction = current_app.model.predict(input_df)
+            disease_idx = np.argmax(prediction)
+            disease = current_app.le_disease.inverse_transform([disease_idx])[0]
+            
+            return render_template('index.html', disease=disease)
 
-        # Получаем предсказание
-        prediction = model.predict(input_df)
-        disease_idx = prediction.argmax()
-        disease = le_disease.inverse_transform([disease_idx])[0]
+        except ValueError as e:
+            return render_template('index.html', disease="Error: " + str(e))
+            
+    return render_template('index.html', disease=None)
 
-        return render_template('index.html', result=f"Predicted Disease: {disease}")
-    except Exception as e:
-        return render_template('index.html', result=f"Error: {str(e)}")
-
+def safe_transform(encoder, value):
+    """ Безопасно преобразует значение с помощью энкодера. Если значение не найдено,
+        возвращает 0 (или другое значение по умолчанию).
+    """
+    try:
+        return encoder.transform([value])[0]
+    except ValueError:
+        # Если значение не найдено, возвращаем 0 (или другое значение по умолчанию)
+        return 0

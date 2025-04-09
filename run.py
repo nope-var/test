@@ -1,4 +1,6 @@
-from app import app  # Импортируем объект Flask из __init__.py
+from app import create_app
+
+app = create_app()
 
 if __name__ == '__main__':
-    app.run(debug=True)  # Запуск приложения Flask
+    app.run(debug=True)

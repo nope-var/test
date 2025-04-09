@@ -1,9 +1,24 @@
-# app/__init__.py
 from flask import Flask
-from keras.src.models import load_model
+import tensorflow as tf
+from keras.models import load_model
+import pickle
 
-app = Flask(__name__)
+def create_app():
+    app = Flask(__name__)
 
-# Загрузка модели и энкодеров
-model = load_model('model.h5')
-# Здесь можно добавить загрузку LabelEncoders из файлов, если они были сохранены
+    # Загрузка модели при старте приложения
+    app.model = load_model('model.h5')
+
+    # Загрузка энкодеров
+    with open('le_animal.pkl', 'rb') as f:
+        app.le_animal = pickle.load(f)
+    with open('le_disease.pkl', 'rb') as f:
+        app.le_disease = pickle.load(f)
+    with open('le_symptom.pkl', 'rb') as f:
+        app.le_symptom = pickle.load(f)
+
+    # Импортируем маршруты
+    from . import routes
+    app.register_blueprint(routes.bp)
+
+    return app
