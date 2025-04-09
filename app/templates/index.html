@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Image and Text</title>
+</head>
+<body>
+    <h1>Upload Image and Text</h1>
+    <form method="POST" enctype="multipart/form-data">
+        <label for="image">Select Image:</label>
+        <input type="file" name="image" accept="image/*">
+        <br><br>
+        <label for="text">Enter Text:</label>
+        <textarea name="text"></textarea>
+        <br><br>
+        <button type="submit">Upload</button>
+    </form>
+
+    {% if filename %}
+        <h2>Uploaded Image:</h2>
+        <img src="{{ url_for('static', filename='uploads/' + filename) }}" alt="Uploaded Image" width="300">
+        <h2>Text:</h2>
+        <p>{{ text }}</p>
+    {% endif %}
+</body>
+</html>
