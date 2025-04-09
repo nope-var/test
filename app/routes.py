@@ -1,6 +1,6 @@
 from flask import render_template, request
 from app import app  # Импортируем объект Flask из __init__.py
-from keras.models import load_model
+from keras.src.models import load_model
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 
@@ -48,3 +48,4 @@ def predict():
         return render_template('index.html', result=f"Predicted Disease: {disease}")
     except Exception as e:
         return render_template('index.html', result=f"Error: {str(e)}")
+
